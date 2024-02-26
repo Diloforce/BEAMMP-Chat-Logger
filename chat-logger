@@ -1,1 +1,38 @@
+local JSON = require("json")
+local HTTP = require("socket.http") -- Adjust this based on the available HTTP library
 
+local function loadConfig()
+    local configFile = io.open("config.json", "r")
+    if not configFile then
+        print("Failed to open config.json")
+        return nil
+    end
+
+    local configContents = configFile:read("*a")
+    configFile:close()
+
+    local config = JSON.decode(configContents)
+    return config
+end
+
+local function sendMessageToWebhook(webhookUrl, message)
+    -- Prepare the HTTP request (adjust based on your HTTP library's requirements)
+    local body = JSON.encode({content = message})
+    local response, status = HTTP.request(webhookUrl, body)
+
+    if status ~= 200 then
+        print("Failed to send message to webhook: " .. tostring(status))
+    end
+end
+
+-- Main function to handle chat messages
+function onChatMessage(playerID, senderName, message)
+    local config = loadConfig()
+    if config and config.webhookUrl then
+        -- Construct the message you want to send to the webhook
+        local webhookMessage = senderName .. ": " .. message
+        sendMessageToWebhook(config.webhookUrl, webhookMessage)
+    else
+        print("Webhook URL not found in config")
+    end
+end
