@@ -1,4 +1,4 @@
-# BEAMMP-Chat-Logger
+# BEAMMP-Good-Utilites
 My first plugin :) I have no idea what I'm doing but I'll make it work!
 
 
@@ -17,3 +17,8 @@ I'm sorry if this does not work, It's really hard to make this plugin and yeah :
 
 
 ## IT ONLY WORKS ON WINDOWS CURRENTLY
+# WHITELIST
+
+Follow same placement as Chat Logger,
+Use command /whitelist for easy time
+Use command /whitelist in console for less easy time xD
