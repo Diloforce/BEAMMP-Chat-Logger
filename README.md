@@ -13,7 +13,6 @@ Directory :
 After that, make a directory, for the plugin.  
 After that, the plugin should do all the work for the most part, launch the plugin, hopefully it explains you need an Webhook attached (Webhook is to log the chats), you can do this by going to the config file and then find "webhook": "INSERT-WEBHOOK" . Place webhook in there. 
 
-I'm sorry if this does not work, It's really hard to make this plugin and yeah :)
 
 
 ## IT ONLY WORKS ON WINDOWS CURRENTLY
