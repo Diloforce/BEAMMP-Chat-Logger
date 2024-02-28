@@ -1,7 +1,7 @@
 -- localWhitelist.lua
 -- Manages a local whitelist for BeamMP.
 
-local whitelist = {"Dilo", "Player2"} -- Add player names here to whitelist them.
+local whitelist = {"Player1", "Player2"} -- Add player names here to whitelist them.
 
 local M = {}
 
