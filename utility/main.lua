@@ -26,7 +26,7 @@ end
 
 function MyChatMessageHandler(sender_id, sender_name, message)
     if config.censorEnabled and containsBadWord(normalizeMessage(message)) then
-        MP.SendChatMessage(-1, .. sender_name ..  " Your message was censored.")
+        MP.SendChatMessage(-1, .. sender_name ..  " Your message was censored. Do not repeat.")
 
         print(sender_name .. "'s message was censored.")
         return 1 
