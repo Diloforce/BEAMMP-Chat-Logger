@@ -15,7 +15,6 @@ After that, the plugin should do all the work for the most part, launch the plug
 
 
 
-## IT ONLY WORKS ON WINDOWS CURRENTLY
 # WHITELIST
 
 Follow same placement as Chat Logger,
