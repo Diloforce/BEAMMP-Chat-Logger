@@ -1,3 +1,4 @@
+-- Main.lua
 print("Loading Censor Plugin...")
 function normalizeMessage(message)
     local normalized = message:lower()
@@ -6,10 +7,10 @@ function normalizeMessage(message)
 end
 
 function containsBadWord(normalizedMessage)
-    -- List of  bad words 
+    -- List of  bad words
     local badWords = {
-        "nigger", "faggot", "bitch", "slut", "retard", "whore", "cunt", "dickhead", "asshole", "motherfucker", "pussy", "kys", "kill yourself", "im going to kill you", "dumbass", "fuck", "shit", "nigga", "niga"
-    }
+        "nigger", "faggot", "slut", "retard", "whore", "cunt", "dickhead", "asshole", "motherfucker", "kys", "kill yourself", "im going to kill you", "nigga", "niga" --,"fuck", "bitch", "dumass", "idiot", "monkey", "npc" -- OPTIONAL ADDITIONS
+     }
     print("Bad words loaded: " .. table.concat(badWords, ", "))
     for _, word in ipairs(badWords) do
         if normalizedMessage:find(word) then
@@ -25,9 +26,9 @@ function MyChatMessageHandler(sender_id, sender_name, message)
 
     if containsBadWord(normalizedMessage) then
         -- Optionally, log or send a message about the censor action
-        -- MP.SendChatMessage(-1, "A message was censored.")
+         MP.SendChatMessageUser(-1, "Your message was censored.")
         print(sender_name .. "'s message was censored.")
-        return 1 
+        return 1  
     else
         return 0  
     end
