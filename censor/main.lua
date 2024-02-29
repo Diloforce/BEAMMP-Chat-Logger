@@ -1,6 +1,5 @@
 print("Loading Censor Plugin...")
 function normalizeMessage(message)
-    -- Normalize message for comparison: lower case and replace common leet speak characters
     local normalized = message:lower()
     normalized = normalized:gsub("1", "i"):gsub("!", "i"):gsub("3", "e"):gsub("4", "a"):gsub("@", "a"):gsub("0", "o"):gsub("5", "s"):gsub("7", "t")
     return normalized
@@ -28,9 +27,9 @@ function MyChatMessageHandler(sender_id, sender_name, message)
         -- Optionally, log or send a message about the censor action
         -- MP.SendChatMessage(-1, "A message was censored.")
         print(sender_name .. "'s message was censored.")
-        return 1  -- Cancel the event to censor the message
+        return 1 
     else
-        return 0  -- Do not cancel the event, message is fine
+        return 0  
     end
 end
 
