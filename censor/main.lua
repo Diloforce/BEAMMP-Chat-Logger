@@ -6,7 +6,7 @@ function normalizeMessage(message)
 end
 
 function containsBadWord(normalizedMessage)
-    -- List of normalized bad words for comparison
+    -- List of  bad words 
     local badWords = {
         "nigger", "faggot", "bitch", "slut", "retard", "whore", "cunt", "dickhead", "asshole", "motherfucker", "pussy", "kys", "kill yourself", "im going to kill you", "dumbass", "fuck", "shit", "nigga", "niga"
     }
