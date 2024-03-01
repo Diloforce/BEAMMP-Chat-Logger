@@ -1,15 +1,12 @@
 local mytimer = MP.CreateTimer()
 print("Loading Plugins...")
--- Requirements
 
--- webhook
-
-
--- Configurations
+-- admin 
 local config = {
     mode = "local",  -- "local" for a static list, "cmd" for command-based management
     whitelistEnabled = false,  -- Enable or disable whitelist feature
     censorEnabled = true,  -- Enable or disable censor feature
+    chatlogsEnabled = true,
 }
 
 -- Integrations 
@@ -37,8 +34,17 @@ function normalizeMessage(message)
 end
 
 function containsBadWord(normalizedMessage)
-    local badWords = {"nigger", "faggot", "slut", "retard", "whore", "cunt"", "motherfucker", "kys", "kill yourself", "im going to kill you", "nigga", "niga"}
+    local badWords = {"slut", "retard", "whore", "cunt", "asshole", "motherfucker", "kys", "kill yourself", "im going to kill you"}
     for _, word in ipairs(badWords) do
+        if normalizedMessage:find(word) then
+            return true
+        end
+    end
+    return false
+end
+function containsVeryBadWord(normalizedMessage)
+    local veryBadWords = {"nigger", "faggot", "nigga", "niga"}
+    for _, word in ipairs(veryBadWords) do  -- Corrected to iterate over veryBadWords
         if normalizedMessage:find(word) then
             return true
         end
@@ -47,20 +53,24 @@ function containsBadWord(normalizedMessage)
 end
 
 function MyChatMessageHandler(sender_id, sender_name, message)
-    local normalizedMessage = normalizeMessage(message)  
-    if normalizedMessage:find("nigger") or normalizedMessage:find("niga") or normalizedMessage:find("faggot") or normalizedMessage:find("niger") or normalizedMessage:find("nigga") then
-        MP.DropPlayer(sender_id, "You have been banned due to offensive language. Reason of Ban: " .. normalizedMessage) 
-        local i = "\nCensorship-banned: " .. sender_name .. " | Reason: " .. normalizedMessage
-        util.readBanFile(true, i) 
-        MP.SendChatMessage(-1, sender_name .. ": Your message was censored.")
-        print(sender_name .. "'s message was censored. Bad word used: " .. normalizedMessage)
-    else
-        MP.SendChatMessage(-1, sender_name .. ": Your message was censored.")
-        print(sender_name .. "'s message was censored. Bad word used: " .. normalizedMessage) 
-            return 1
-         end
-    return false 
+    local normalizedMessage = normalizeMessage(message)
+    if containsVeryBadWord(normalizedMessage) then
+        -- Your existing logic for very bad words
+        MP.DropPlayer(sender_id, "You have been banned due to offensive language. Reason of Ban: " .. normalizedMessage)
+        local logEntry = "\nCensorship-banned: " .. sender_name .. " | Reason: " .. normalizedMessage
+        util.readBanFile(true, logEntry)
+        MP.SendChatMessage(-1, sender_name .. " has been banned for offensive language.")
+        print(sender_name .. " has been banned for offensive language. Reason: " .. normalizedMessage)
+    elseif containsBadWord(normalizedMessage) then
+        -- Adjusted logic for bad words
+        MP.SendChatMessage(-1, sender_name .. ", your message was censored.")
+        print(sender_name .. "'s message was censored. Reason: Bad word used.")
+    end
 end
+
+-- Properly registering the event handler for chat messages
+MP.RegisterEvent("onChatMessage", "MyChatMessageHandler")
+
 
 -- Whitelist 
 local whitelist = {"Player1", "Player2"}
@@ -81,8 +91,14 @@ function onPlayerConnecting(playerID)
     end
 end
 
-MP.RegisterEvent("onPlayerConnecting", "onPlayerConnecting")
-MP.RegisterEvent("onChatMessage", "MyChatMessageHandler")
+-- Commands 
 
-print("Plugins Loaded Successfully.")
-print("Time taken:"  ..  mytimer:GetCurrent()) -- print how much time elapsed
+MP.RegisterEvent("onChatMessage", "onChatMessage")
+
+MP.RegisterEvent("onConsoleInput", "handleConsoleInput")
+
+MP.RegisterEvent("onChatMessage", "MyChatMessageHandler")
+MP.RegisterEvent("onPlayerConnecting", "onPlayerConnecting") print("Registered all Events")  
+print("Utilities Plugin Loaded Successfully.")
+print("Time taken: " .. mytimer:GetCurrent()) 
+
