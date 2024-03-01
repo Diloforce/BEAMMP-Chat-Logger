@@ -37,7 +37,7 @@ function normalizeMessage(message)
 end
 
 function containsBadWord(normalizedMessage)
-    local badWords = {"nigger", "faggot", "slut", "retard", "whore", "cunt", "asshole", "motherfucker", "kys", "kill yourself", "im going to kill you", "nigga", "niga"}
+    local badWords = {"nigger", "faggot", "slut", "retard", "whore", "cunt"", "motherfucker", "kys", "kill yourself", "im going to kill you", "nigga", "niga"}
     for _, word in ipairs(badWords) do
         if normalizedMessage:find(word) then
             return true
