@@ -3,8 +3,8 @@ import requests
 import os
 
 # Configuration
-log_file_path = r"D:\server\chat_logs.txt"
-webhook_url = "https://discord.com/api/webhooks/1199391173102542888/DrAYxf1gq7DGj87vU6mtc50SEcAPzPCL3QXB1U85enIqQdiDKYTgRd8nUwV66pg1UDnR"
+log_file_path = r"Letter of Drive:\path\chat_logs.txt"
+webhook_url = "WEB HOOK"
 
 def send_to_webhook(message):
     payload = {
