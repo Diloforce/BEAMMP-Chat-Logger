@@ -6,7 +6,6 @@ local config = {
     whitelistEnabled = false,  -- Enable or disable whitelist feature
     censorEnabled = true,  -- Enable or disable censor feature
     chatlogsEnabled = true,  -- Enable or disable chat logs
-    webhookURL = "ENTER_WEB_HOOK",
     simpleControls = true, -- Enable if want simple controls: Kick, mute, ban and warn. 
     permsFilePath = "../perms.txt",  -- Path to the permissions file
     allowGuests = false, -- Allow guest users or not
@@ -81,7 +80,7 @@ util.readBanFile = function(rwSw, wrInput)
 end
 
 util.logToFile = function(message)
-    local logFile, err = io.open("../chat_logs.txt", "a")
+    local logFile, err = io.open("D:\\server\\chat_logs.txt", "a")
     if not logFile then
         print("Error opening log file:", err)
         return
@@ -89,15 +88,6 @@ util.logToFile = function(message)
 
     logFile:write(os.date("[%Y-%m-%d %H:%M:%S] ") .. message .. "\n")
     logFile:close()
-end
-
-util.sendToWebhook = function(message)
-    local payload = '{"content": "' .. message .. '"}'
-    local command = string.format(
-        'curl -H "Content-Type: application/json" -d %q %s',
-        payload, config.webhookURL
-    )
-    os.execute(command)
 end
 
 -- Implement simple controls
@@ -160,6 +150,64 @@ function MyChatMessageHandler(sender_id, sender_name, message)
     local normalizedMessage = normalizeMessage(message)
     local logEntry = sender_name .. ": " .. message
 
+    -- Simple Controls Handling
+    if message:sub(1, 2) == "s!" then
+        local perms = util.readPermsFile()
+        local command, args = message:sub(3):match("^(%S+)%s*(.*)$")
+        if command == "warn" then
+            if not util.hasPermission(sender_name, "mod", perms) then
+                MP.SendChatMessage(sender_id, "You do not have permission to use this command.")
+                return 1
+            end
+
+            local playerID, templateNumber, reason = args:match("^(%d+)%s*(%d+)%s*(.*)$")
+            playerID = tonumber(playerID)
+            templateNumber = tonumber(templateNumber)
+
+            if not playerID or not templateNumber then
+                MP.SendChatMessage(sender_id, "Invalid usage. Correct format: s!warn <playerID> <templateNumber> <reason>")
+                return 1
+            end
+            util.simpleWarn(playerID, templateNumber, reason)
+            return 1 
+        else
+            local playerID, reason = args:match("^(%d+)%s*(.*)$")
+            playerID = tonumber(playerID)
+
+            if not playerID then
+                MP.SendChatMessage(sender_id, "Invalid player ID.")
+                return 1
+            end
+
+            if command == "kick" then
+                if not util.hasPermission(sender_name, "mod", perms) then
+                    MP.SendChatMessage(sender_id, "You do not have permission to use this command.")
+                    return 1
+                end
+                util.simpleKick(playerID, reason)
+                return 1 
+            elseif command == "mute" then
+                if not util.hasPermission(sender_name, "mod", perms) then
+                    MP.SendChatMessage(sender_id, "You do not have permission to use this command.")
+                    return 1
+                end
+                util.simpleMute(playerID, reason)
+                return 1  
+            elseif command == "ban" then
+                if not util.hasPermission(sender_name, "admin", perms) then
+                    MP.SendChatMessage(sender_id, "You do not have permission to use this command.")
+                    return 1
+                end
+                util.simpleBan(playerID, reason)
+                return 1 
+            else
+                MP.SendChatMessage(sender_id, "Unknown command: " .. command)
+                return 0  
+            end
+        end
+    end
+
+    -- Censorship Handling
     if config.censorEnabled then
         if containsVeryBadWord(normalizedMessage) then
             MP.DropPlayer(sender_id, "You have been banned due to offensive language. Reason of Ban: " .. normalizedMessage)
@@ -169,7 +217,6 @@ function MyChatMessageHandler(sender_id, sender_name, message)
             print(sender_name .. " has been banned for offensive language. Reason: " .. normalizedMessage)
             if config.chatlogsEnabled then
                 util.logToFile(banLogEntry)
-                util.sendToWebhook(banLogEntry)
             end
             return 1  
         elseif containsBadWord(normalizedMessage) then
@@ -178,15 +225,14 @@ function MyChatMessageHandler(sender_id, sender_name, message)
             print(censorLogEntry)
             if config.chatlogsEnabled then
                 util.logToFile(censorLogEntry)
-                util.sendToWebhook(censorLogEntry)
             end
             return 1  
         end
     end
 
+    -- Chat Logging
     if config.chatlogsEnabled then
         util.logToFile(logEntry)
-        util.sendToWebhook(logEntry)
     end
 
     return 0  
@@ -221,75 +267,6 @@ function handleConsoleInput(input)
     end
 end
 
-MP.RegisterEvent("onConsoleInput", "handleConsoleInput")
-
--- Simple Controls 
-
-function simpleControls(sender_id, sender_name, message)
-    local perms = util.readPermsFile()
-    local command, args = message:match("^(%S+)%s*(.*)$")
-    if command == "warn" then
-        if not util.hasPermission(sender_name, "mod", perms) then
-            MP.SendChatMessage(sender_id, "You do not have permission to use this command.")
-            return 1
-        end
-
-        local playerID, templateNumber, reason = args:match("^(%d+)%s*(%d+)%s*(.*)$")
-        playerID = tonumber(playerID)
-        templateNumber = tonumber(templateNumber)
-
-        if not playerID or not templateNumber then
-            MP.SendChatMessage(sender_id, "Invalid usage. Correct format: s!warn <playerID> <templateNumber> <reason>")
-            return 1
-        end
-        util.simpleWarn(playerID, templateNumber, reason)
-        return 1 
-    else
-        local playerID, reason = args:match("^(%d+)%s*(.*)$")
-        playerID = tonumber(playerID)
-
-        if not playerID then
-            MP.SendChatMessage(sender_id, "Invalid player ID.")
-            return 1
-        end
-
-        if command == "kick" then
-            if not util.hasPermission(sender_name, "mod", perms) then
-                MP.SendChatMessage(sender_id, "You do not have permission to use this command.")
-                return 1
-            end
-            util.simpleKick(playerID, reason)
-            return 1 
-        elseif command == "mute" then
-            if not util.hasPermission(sender_name, "mod", perms) then
-                MP.SendChatMessage(sender_id, "You do not have permission to use this command.")
-                return 1
-            end
-            util.simpleMute(playerID, reason)
-            return 1  
-        elseif command == "ban" then
-            if not util.hasPermission(sender_name, "admin", perms) then
-                MP.SendChatMessage(sender_id, "You do not have permission to use this command.")
-                return 1
-            end
-            util.simpleBan(playerID, reason)
-            return 1 
-        else
-            MP.SendChatMessage(sender_id, "Unknown command: " .. command)
-            return 0  
-        end
-    end
-end
-
-function MyChatMessageHandler(sender_id, sender_name, message)
-    if message:sub(1, 2) == "s!" then
-        simpleControls(sender_id, sender_name, message:sub(3))
-        return 1 
-    end
-    return 0  
-end
-
-MP.RegisterEvent("onChatMessage", "MyChatMessageHandler")
 MP.RegisterEvent("onConsoleInput", "handleConsoleInput")
 
 function onPlayerAuth(playerName, senderRole, senderIsGuest, senderIdentifiers)
