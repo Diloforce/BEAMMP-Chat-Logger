@@ -21,3 +21,7 @@ The .json files currently do nothing, It's recommeneded to disable whitelist.
 Follow same placement as Chat Logger,
 Use command /whitelist for easy time
 Use command /whitelist in console for less easy time xD
+
+# WEBHOOK DISCORD CHAT LOG
+
+Please input the chat_logs.txt in the correct location for the directory you have chosen.
